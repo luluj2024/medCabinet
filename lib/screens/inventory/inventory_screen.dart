@@ -69,6 +69,29 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   child: const Icon(Icons.delete, color: Colors.white),
                 ),
                 direction: DismissDirection.endToStart,
+
+                confirmDismiss: (direction) async {
+                  return await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Delete Medicine?'),
+                      content: Text('Are you sure you want to delete ${med.name}?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Cancel'),
+                        ),
+
+                        FilledButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('Delete'),
+                        ),
+                      ],
+
+                    ),
+                  ) ?? false;
+                },
+
                 onDismissed: (_) => _deleteMedicine(med),
                 child: ListTile(
                   title: Text(med.name),
