@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:med_cabinet/screens/inventory/inventory_screen.dart';
+
+import '../expiry/expiry_screen.dart';
 
 class MainTabs extends StatefulWidget {
   const MainTabs({super.key});
@@ -11,8 +14,8 @@ class _MainTabsState extends State<MainTabs> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = const [
-    Center(child: Text('Inventory')),
-    Center(child: Text('Expiry')),
+    InventoryScreen(),
+    ExpiryScreen(),
   ];
 
   @override
