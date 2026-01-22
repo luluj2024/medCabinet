@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/medicine.dart';
+import '../../services/api/openfda_service.dart';
 import '../../services/db/medicine_dao.dart';
 
 class AddMedicineScreen extends StatefulWidget {
@@ -50,6 +51,75 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
       setState(() {
         _expiryDate = picked;
       });
+    }
+  }
+
+  Future<void> _searchOpenFda() async {
+    final query = _nameController.text.trim();
+    if(query.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a medicine name first')),
+      );
+      return;
+    }
+
+    try {
+      final results = await OpenfdaService.instance.searchDrugLabel(query, limit: 5);
+
+      if(!mounted) return;
+
+      if(results.isEmpty) {
+        await showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('No results found'),
+            content: Text('No openFDA label found for "$query"'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('openFDA Results'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: results.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (context, i) {
+                  final r = results[i];
+                  final title = r.brandName ?? r.genericName ?? '(unknown)';
+                  final subtitle = r.purpose ?? r.warnings ?? '';
+                  return ListTile(
+                    title: Text(title),
+                    subtitle: subtitle.isEmpty ? null : Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  );
+                },
+              ),
+            ),
+
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+        ),
+      );
+    } catch (e) {
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('OpenFDAError: $e')),
+      );
     }
   }
 
@@ -133,6 +203,14 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                 onPressed: _pickExpiryDate,
                 icon: const Icon(Icons.calendar_today),
                 label: Text(expiryText),
+              ),
+
+              const SizedBox(height: 12),
+
+              OutlinedButton.icon(
+                onPressed: _searchOpenFda,
+                icon: const Icon(Icons.search),
+                label: const Text('Search openFDA(optional)'),
               ),
 
               const SizedBox(height: 12),
