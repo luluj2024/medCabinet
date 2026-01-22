@@ -102,6 +102,25 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                   return ListTile(
                     title: Text(title),
                     subtitle: subtitle.isEmpty ? null : Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
+                    onTap: () {
+                      final buffer = StringBuffer();
+                      if(r.purpose != null) {
+                        buffer.writeln('Purpose: ${r.purpose}\n');
+                        buffer.writeln();
+                      }
+
+                      if(r.warnings != null) {
+                        buffer.writeln('Warnings:');
+                        buffer.writeln(r.warnings);
+                      }
+
+                      setState(() {
+                        _notesController.text = buffer.toString().trim();
+                      });
+
+                      Navigator.of(context).pop();
+
+                      },
                   );
                 },
               ),
