@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:med_cabinet/models/medicine.dart';
 
 import '../../services/db/medicine_dao.dart';
+import 'add_medicine_screen.dart';
 
 class MedicineDetailScreen extends StatelessWidget {
   final Medicine medicine;
@@ -52,6 +53,20 @@ class MedicineDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Medicine Details'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () async {
+              final changed = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => AddMedicineScreen(medicine: medicine),
+                ),
+              );
+              if (changed == true && context.mounted) {
+                Navigator.of(context).pop(true);
+              }
+            },
+          ),
+
           IconButton(
             onPressed: () => _deleteMedicine(context),
             icon: const Icon(Icons.delete),

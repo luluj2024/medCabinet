@@ -5,7 +5,9 @@ import '../../services/api/openfda_service.dart';
 import '../../services/db/medicine_dao.dart';
 
 class AddMedicineScreen extends StatefulWidget {
-  const AddMedicineScreen({super.key});
+  final Medicine? medicine; // Medicine to edit, if any
+
+  const AddMedicineScreen({super.key, this.medicine});
 
   @override
   State<AddMedicineScreen> createState() => _AddMedicineScreenState();
@@ -20,6 +22,23 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
   final _notesController = TextEditingController();
 
   DateTime? _expiryDate;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final m = widget.medicine;
+
+    if(m != null) {
+      _nameController.text = m.name;
+      _quantityController.text = m.quantity.toString();
+      _locationController.text = m.location;
+      _notesController.text = m.notes ?? '';
+      _expiryDate = m.expiryDate;
+    }
+  }
+
+  //)
 
   @override
   void dispose() {
@@ -154,16 +173,23 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
 
       final quantity = int.tryParse(_quantityController.text.trim()) ?? 1;
 
+      final existing = widget.medicine;
+
       final med = Medicine(
+        id: existing?.id,
         name: _nameController.text.trim(),
         expiryDate: _expiryDate!,
         quantity: quantity,
         location: _locationController.text.trim(),
         notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-        createdAt: DateTime.now(),
+        createdAt: existing?.createdAt ?? DateTime.now(),
       );
 
-      await MedicineDao.instance.insert(med);
+      if(existing == null){
+        await MedicineDao.instance.insert(med);
+      } else {
+        await MedicineDao.instance.update(med);
+      }
 
       if(!mounted) return;
       Navigator.of(context).pop(true);
@@ -172,10 +198,11 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
   @override
   Widget build(BuildContext context) {
     final expiryText = _expiryDate == null ? 'Select expiry date' : _formatDate(_expiryDate!);
+    final isEdit = widget.medicine != null;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Medicine'),
+        title: Text(isEdit ? 'Edit Medicine' : 'Add Medicine'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

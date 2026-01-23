@@ -55,8 +55,6 @@ class MedicineDao {
   }
 
   Future<int> deleteById(int id) async {
-    if(id == null) throw ArgumentError('Medicine id cannot be null');
-
     final db = await DatabaseHelper().database;
     return await db.delete(
         tableName,
