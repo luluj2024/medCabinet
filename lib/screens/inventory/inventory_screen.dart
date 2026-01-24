@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../models/medicine.dart';
 import '../../services/db/medicine_dao.dart';
+import '../../services/notifications/notification_service.dart';
 import 'add_medicine_screen.dart';
 import 'medicine_detail_screen.dart';
 

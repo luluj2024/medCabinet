@@ -1,5 +1,3 @@
-import 'package:flutter_test/flutter_test.dart';
-
 class Medicine {
   final int? id;
   final String name;
@@ -8,7 +6,10 @@ class Medicine {
   final String location;
   final String? notes;
   final DateTime? createdAt;
-//   perhaps add picture later
+  final bool dailyReminderEnabled;
+  final int? dailyReminderHour;
+  final int? dailyReminderMinute;
+
 
   Medicine({
     this.id,
@@ -18,6 +19,9 @@ class Medicine {
     required this.location,
     this.notes,
     this.createdAt,
+    this.dailyReminderEnabled = false,
+    this.dailyReminderHour,
+    this.dailyReminderMinute,
   });
 
   Medicine copyWith({
@@ -28,6 +32,9 @@ class Medicine {
     String? location,
     String? notes,
     DateTime? createdAt,
+    bool? dailyReminderEnabled,
+    int? dailyReminderHour,
+    int? dailyReminderMinute,
   }){
     return Medicine(
       id: id ?? this.id,
@@ -37,6 +44,9 @@ class Medicine {
       location: location ?? this.location,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
+      dailyReminderEnabled: dailyReminderEnabled ?? this.dailyReminderEnabled,
+      dailyReminderHour: dailyReminderHour ?? this.dailyReminderHour,
+      dailyReminderMinute: dailyReminderMinute ?? this.dailyReminderMinute
     );
   }
 
@@ -49,6 +59,9 @@ class Medicine {
       'location': location,
       'notes': notes,
       'createdAt': createdAt?.toIso8601String(),
+      'dailyReminderEnabled': dailyReminderEnabled? 1 : 0,
+      'dailyReminderHour': dailyReminderHour,
+      'dailyReminderMinute': dailyReminderMinute,
     };
   }
 
@@ -61,6 +74,10 @@ class Medicine {
       location: map['location'] as String,
       notes: map['notes'] as String?,
       createdAt: DateTime.parse(map['createdAt']),
+
+      dailyReminderEnabled: (map['dailyReminderEnabled'] as int? ?? 0)==1,
+      dailyReminderHour: map['dailyReminderHour'] as int?,
+      dailyReminderMinute: map['dailyReminderMinute'] as int?,
     );
   }
 
