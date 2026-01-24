@@ -167,7 +167,6 @@ class NotificationService {
         scheduled,
         _details(),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
       );
     } on PlatformException catch (e) {
       if (e.code == 'exact_alarms_not_permitted') {
@@ -178,7 +177,6 @@ class NotificationService {
           scheduled,
           _details(),
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-          matchDateTimeComponents: DateTimeComponents.time,
         );
       } else {
         rethrow;
