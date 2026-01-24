@@ -5,7 +5,7 @@ import '../../services/api/openfda_service.dart';
 import '../../services/db/medicine_dao.dart';
 
 class AddMedicineScreen extends StatefulWidget {
-  final Medicine? medicine; // Medicine to edit, if any
+  final Medicine? medicine;
 
   const AddMedicineScreen({super.key, this.medicine});
 

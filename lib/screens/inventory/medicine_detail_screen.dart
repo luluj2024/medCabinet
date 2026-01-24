@@ -92,12 +92,12 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
         debugPrint('>>> scheduling test done');
 
         // for testing -------------------
-        debugPrint('>>> scheduling test in 10s');
+        debugPrint('>>> scheduling test in 120s');
 
         await NotificationService.instance.scheduleAfterSeconds(
           id: 9999,
           title: 'Test in 10s',
-          body: 'If you see this, scheduling works ✅',
+          body: 'If you see this, scheduling works',
           seconds: 120,
         );
 
