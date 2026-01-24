@@ -159,6 +159,12 @@ class NotificationService {
   }) async {
     final scheduled = tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds));
 
+
+    // ----------- testing ---------------
+    final now = tz.TZDateTime.now(tz.local);
+    print('now=$now scheduled=$scheduled tz=${tz.local.name}');
+    // ----------- testing ---------------
+
     try {
       await _plugin.zonedSchedule(
         id,
@@ -168,6 +174,16 @@ class NotificationService {
         _details(),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
+
+      // ----------- testing ---------------
+      final pending = await _plugin.pendingNotificationRequests();
+      print('pending count=${pending.length}');
+      for (final p in pending) {
+        print('pending id=${p.id} title=${p.title}');
+      }
+      // ----------- testing ---------------
+
+
     } on PlatformException catch (e) {
       if (e.code == 'exact_alarms_not_permitted') {
         await _plugin.zonedSchedule(
