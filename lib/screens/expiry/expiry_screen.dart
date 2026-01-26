@@ -128,7 +128,7 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
                   ),
                 ),
                 subtitle: Text(
-                  'Expiry: ${_formatDate(med.expiryDate)} * ${med.location}',
+                  'Expiry: ${_formatDate(med.expiryDate)} • ${med.location}',
                 ),
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

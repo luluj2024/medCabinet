@@ -100,9 +100,16 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 child: ListTile(
                   title: Text(med.name),
                   subtitle: Text(
-                    'Expiry: ${fmt.format(med.expiryDate)} * ${med.location}',
+                    'Expiry: ${fmt.format(med.expiryDate)} • ${med.location}',
                   ),
-                  trailing: Text('x${med.quantity}'),
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(999),
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    ),
+                    child: Text('x${med.quantity}'),
+                  ),
                   onTap: () async {
                     final updated = await Navigator.of(context).push<bool>(
                       MaterialPageRoute(
