@@ -79,35 +79,13 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
           return;
         }
 
-        debugPrint('>>> scheduling test');
-
         await NotificationService.instance.scheduleDailyReminder(
           id: notifId,
           title: _med.name,
-          body: 'Time to take your medicine!',
+          body: 'Time to take your medicine 💊',
           hour: picked.hour,
           minute: picked.minute,
         );
-
-        debugPrint('>>> scheduling test done');
-
-        // for testing -------------------
-        debugPrint('>>> scheduling test in 120s');
-
-        await NotificationService.instance.scheduleAfterSeconds(
-          id: 9999,
-          title: 'Test in 120s',
-          body: 'If you see this, scheduling works',
-          seconds: 10,
-        );
-
-        debugPrint('<<< scheduled test done');
-
-        debugPrint('>>> scheduling test now');
-
-        await NotificationService.instance.showNow(id: 123, title: 'test', body: 'testing');
-
-        debugPrint('>>> scheduling test done');
 
         final updated = _med.copyWith(
           dailyReminderEnabled: true,
