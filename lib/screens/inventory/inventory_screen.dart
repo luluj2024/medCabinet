@@ -19,10 +19,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
   @override
   void initState() {
     super.initState();
-    _medicines = MedicineDao.instance.getAllByName();
+    _loadMedicines();
   }
 
-  void _refresh() {
+  void _loadMedicines() {
     setState(() {
       _medicines = MedicineDao.instance.getAllByName();
     });
@@ -31,18 +31,20 @@ class _InventoryScreenState extends State<InventoryScreen> {
   Future<void> _deleteMedicine(Medicine medicine) async {
     if (medicine.id == null) return;
     await MedicineDao.instance.deleteById(medicine.id!);
-    _refresh();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('"${medicine.name}" deleted.')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final fmt = DateFormat('yyyy-MM-dd');
-
     return Scaffold(
       body: FutureBuilder<List<Medicine>>(
         future: _medicines,
         builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
@@ -53,71 +55,125 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
           if (meds.isEmpty) {
             return const Center(
-              child: Text('No medicines found. Tap + to add one.'),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.medical_services_outlined,
+                      size: 80, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('Your medicine cabinet is empty.',
+                      style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 8),
+                  Text(
+                    'Tap the + button to add a new medicine.',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
             );
           }
 
-          return ListView.separated(
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
             itemCount: meds.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (context, i) {
               final med = meds[i];
-              return Dismissible(
-                key: ValueKey(med.id ?? '${med.name}-${med.createdAt}'),
-                background: Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  color: Colors.red,
-                  child: const Icon(Icons.delete, color: Colors.white),
+
+              return Card(
+                elevation: 2.0,
+                margin: const EdgeInsets.symmetric(vertical: 6.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
-                direction: DismissDirection.endToStart,
-
-                confirmDismiss: (direction) async {
-                  return await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Delete Medicine?'),
-                          content: Text(
-                            'Are you sure you want to delete ${med.name}?',
+                child: Dismissible(
+                  key: ValueKey(med.id),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    alignment: Alignment.centerRight,
+                    child: const Icon(Icons.delete_outline, color: Colors.white),
+                  ),
+                  confirmDismiss: (direction) async {
+                    return await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Delete Medicine?'),
+                            content: Text(
+                              'Are you sure you want to delete "${med.name}"?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
+                              FilledButton(
+                                style: FilledButton.styleFrom(
+                                    backgroundColor: Colors.red),
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: const Text('Delete'),
+                              ),
+                            ],
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Cancel'),
-                            ),
-
-                            FilledButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: const Text('Delete'),
-                            ),
+                        ) ??
+                        false;
+                  },
+                  onDismissed: (_) => _deleteMedicine(med),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 16.0),
+                    title: Text(
+                      med.name,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 17),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 8.0),
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today_outlined,
+                                size: 14, color: Colors.grey.shade600),
+                            const SizedBox(width: 8.0),
+                            Text(
+                                'Expires: ${DateFormat('yyyy-MM-dd').format(med.expiryDate)}'),
                           ],
                         ),
-                      ) ??
-                      false;
-                },
-
-                onDismissed: (_) => _deleteMedicine(med),
-                child: ListTile(
-                  title: Text(med.name),
-                  subtitle: Text(
-                    'Expiry: ${fmt.format(med.expiryDate)} • ${med.location}',
-                  ),
-                  trailing: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(999),
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        const SizedBox(height: 4.0),
+                        Row(
+                          children: [
+                            Icon(Icons.location_on_outlined,
+                                size: 14, color: Colors.grey.shade600),
+                            const SizedBox(width: 8.0),
+                            Text(med.location),
+                          ],
+                        ),
+                      ],
                     ),
-                    child: Text('x${med.quantity}'),
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('x${med.quantity}',
+                            style: Theme.of(context).textTheme.titleMedium),
+                      ],
+                    ),
+                    onTap: () async {
+                      final refreshed = await Navigator.of(context).push<bool>(
+                        MaterialPageRoute(
+                          builder: (_) => MedicineDetailScreen(medicine: med),
+                        ),
+                      );
+                      if (refreshed == true) {
+                        _loadMedicines();
+                      }
+                    },
                   ),
-                  onTap: () async {
-                    final updated = await Navigator.of(context).push<bool>(
-                      MaterialPageRoute(
-                        builder: (_) => MedicineDetailScreen(medicine: med),
-                      ),
-                    );
-                    if (updated == true) _refresh();
-                  },
                 ),
               );
             },
@@ -129,7 +185,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
           final added = await Navigator.of(context).push<bool>(
             MaterialPageRoute(builder: (_) => const AddMedicineScreen()),
           );
-          if (added == true) _refresh();
+          if (added == true) {
+            _loadMedicines();
+          }
         },
         child: const Icon(Icons.add),
       ),
