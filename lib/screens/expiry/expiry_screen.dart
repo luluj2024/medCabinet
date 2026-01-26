@@ -130,42 +130,57 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
                   med.name,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
+                    fontSize: 17,
                     color: color,
                   ),
                 ),
-                subtitle: Text(
-                  'Expiry: ${DateFormat.yMMMd().format(med.expiryDate)} • ${med.location}',
-                ),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      daysLeft < 0 ? 'Expired' : '$daysLeft d',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: color,
-                      ),
+                    const SizedBox(height: 8.0),
+                    Row(
+                      children: [
+                        Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey.shade600),
+                        const SizedBox(width: 8.0),
+                        Text('Expiry: ${DateFormat('yyyy-MM-dd').format(med.expiryDate)}'),
+                      ],
                     ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'left',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                      ),
+                    const SizedBox(height: 4.0),
+                    Row(
+                      children: [
+                        Icon(Icons.location_on_outlined, size: 14, color: Colors.grey.shade600),
+                        const SizedBox(width: 8.0),
+                        Text('Location: ${med.location}'),
+                      ],
+                    ),
+                    const SizedBox(height: 4.0),
+                    Row(
+                      children: [
+                        Icon(Icons.inventory_2_outlined, size: 14, color: Colors.grey.shade600),
+                        const SizedBox(width: 8.0),
+                        Text('Quantity: ${med.quantity}'),
+                      ],
                     ),
                   ],
                 ),
-                onTap: () async {
-                  final refreshed = await Navigator.of(context).push<bool>(
-                    MaterialPageRoute(
-                      builder: (_) => MedicineDetailScreen(medicine: med),
-                    ),
-                  );
-                  if (refreshed == true) {
-                    _loadMedicines();
-                  }
-                },
+                trailing: Text(
+                  daysLeft < 0 ? 'Expired' : '$daysLeft d',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    fontSize: 16,
+                  ),
+                ),
+                // onTap: () async {
+                //   final refreshed = await Navigator.of(context).push<bool>(
+                //     MaterialPageRoute(
+                //       builder: (_) => MedicineDetailScreen(medicine: med),
+                //     ),
+                //   );
+                //   if (refreshed == true) {
+                //     _loadMedicines();
+                //   }
+                // },
               ),
             ),
           );
