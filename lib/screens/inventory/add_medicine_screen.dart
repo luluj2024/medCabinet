@@ -116,8 +116,8 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                 separatorBuilder: (_, __) => const Divider(height: 1),
                 itemBuilder: (context, i) {
                   final r = results[i];
-                  final title = r.brandName ?? r.genericName ?? '(unknown)';
-                  final subtitle = r.purpose ?? r.warnings ?? '';
+                  final title = r.brandName ??  '(unknown)';
+                  final subtitle = r.genericName ?? '';
                   return ListTile(
                     title: Text(title),
                     subtitle: subtitle.isEmpty ? null : Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
