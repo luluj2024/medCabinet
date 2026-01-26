@@ -29,7 +29,7 @@ class MedicineDao {
     return rows.map((row) => Medicine.fromMap(row)).toList();
   }
 
-  Future<List<Medicine>> getAllByName({String orderBy = 'name ASC'}) async {
+  Future<List<Medicine>> getAllByName({String orderBy = 'name COLLATE NOCASE ASC'}) async {
     final db = await DatabaseHelper().database;
     final rows = await db.query(
       tableName,
