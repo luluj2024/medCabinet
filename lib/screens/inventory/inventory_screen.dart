@@ -19,12 +19,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
   @override
   void initState() {
     super.initState();
-    _medicines = MedicineDao.instance.getAll();
+    _medicines = MedicineDao.instance.getAllByName();
   }
 
   void _refresh() {
     setState(() {
-      _medicines = MedicineDao.instance.getAll();
+      _medicines = MedicineDao.instance.getAllByName();
     });
   }
 

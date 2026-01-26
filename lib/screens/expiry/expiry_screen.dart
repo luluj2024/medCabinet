@@ -17,7 +17,7 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
   @override
   void initState() {
     super.initState();
-    _medicines = MedicineDao.instance.getAll();
+    _medicines = MedicineDao.instance.getAllByExpiryDate();
   }
 
   String _formatDate(DateTime d) {
@@ -47,7 +47,7 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
 
   void _refresh() {
     setState(() {
-      _medicines = MedicineDao.instance.getAll();
+      _medicines = MedicineDao.instance.getAllByExpiryDate();
     });
   }
 

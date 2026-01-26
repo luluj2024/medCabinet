@@ -19,7 +19,7 @@ class MedicineDao {
     );
   }
 
-  Future<List<Medicine>> getAll({String orderBy = 'expiryDate ASC'}) async {
+  Future<List<Medicine>> getAllByExpiryDate({String orderBy = 'expiryDate ASC'}) async {
     final db = await DatabaseHelper().database;
     final rows = await db.query(
         tableName,
@@ -28,6 +28,18 @@ class MedicineDao {
 
     return rows.map((row) => Medicine.fromMap(row)).toList();
   }
+
+  Future<List<Medicine>> getAllByName({String orderBy = 'name ASC'}) async {
+    final db = await DatabaseHelper().database;
+    final rows = await db.query(
+      tableName,
+      orderBy: orderBy,
+    );
+
+    return rows.map((row) => Medicine.fromMap(row)).toList();
+  }
+
+
 
   Future<Medicine?> getById(int id) async {
     final db = await DatabaseHelper().database;
