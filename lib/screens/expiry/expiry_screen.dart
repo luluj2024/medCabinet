@@ -31,7 +31,37 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
     if (medicine.id == null) return;
     await MedicineDao.instance.deleteById(medicine.id!);
     _loadMedicines(); // Refresh list
+    if(mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('"${medicine.name}" deleted.')),
+      );
+    }
   }
+
+  Future<bool> _showDeleteConfirmationDialog(Medicine med) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Medicine?'),
+        content: Text(
+          'Are you sure you want to delete "${med.name}"?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+                backgroundColor: Colors.red),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    ) ?? false;
+  }
+
 
   int _daysLeft(DateTime expiry) {
     final now = DateTime.now();
@@ -94,45 +124,30 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
                 child: const Icon(Icons.delete_outline, color: Colors.white),
               ),
               direction: DismissDirection.endToStart,
-              confirmDismiss: (direction) async {
-                return await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Delete Medicine?'),
-                        content: Text(
-                          'Are you sure you want to delete "${med.name}"?',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text('Cancel'),
-                          ),
-                          FilledButton(
-                            style: FilledButton.styleFrom(
-                                backgroundColor: Colors.red),
-                            onPressed: () => Navigator.of(context).pop(true),
-                            child: const Text('Delete'),
-                          ),
-                        ],
-                      ),
-                    ) ??
-                    false;
-              },
+              confirmDismiss: (direction) => _showDeleteConfirmationDialog(med),
               onDismissed: (_) => _deleteMedicine(med),
               child: ListTile(
                 contentPadding:
-                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    const EdgeInsets.fromLTRB(16.0, 8.0, 8.0, 8.0),
                 leading: Icon(
                   _statusIcon(daysLeft),
                   color: color,
                 ),
-                title: Text(
-                  med.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17,
-                    color: color,
-                  ),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        med.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                          color: color,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,7 +157,7 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
                       children: [
                         Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey.shade600),
                         const SizedBox(width: 8.0),
-                        Text('Expiry: ${DateFormat('yyyy-MM-dd').format(med.expiryDate)}'),
+                        Text('Expiry: ${DateFormat.yMMMd().format(med.expiryDate)}'),
                       ],
                     ),
                     const SizedBox(height: 4.0),
@@ -150,7 +165,7 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
                       children: [
                         Icon(Icons.location_on_outlined, size: 14, color: Colors.grey.shade600),
                         const SizedBox(width: 8.0),
-                        Text('Location: ${med.location}'),
+                        Text(med.location),
                       ],
                     ),
                     const SizedBox(height: 4.0),
@@ -163,24 +178,44 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
                     ),
                   ],
                 ),
-                trailing: Text(
-                  daysLeft < 0 ? 'Expired' : '$daysLeft d',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                    fontSize: 16,
-                  ),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      daysLeft < 0 ? 'Expired' : '$daysLeft d',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 28,
+                      width: 28,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        iconSize: 20,
+                        icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                        onPressed: () async {
+                          final confirmed = await _showDeleteConfirmationDialog(med);
+                          if (confirmed) {
+                            _deleteMedicine(med);
+                          }
+                        },
+                      ),
+                    )
+                  ],
                 ),
-                // onTap: () async {
-                //   final refreshed = await Navigator.of(context).push<bool>(
-                //     MaterialPageRoute(
-                //       builder: (_) => MedicineDetailScreen(medicine: med),
-                //     ),
-                //   );
-                //   if (refreshed == true) {
-                //     _loadMedicines();
-                //   }
-                // },
+                onTap: () async {
+                  final refreshed = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute(
+                      builder: (_) => MedicineDetailScreen(medicine: med),
+                    ),
+                  );
+                  if (refreshed == true) {
+                    _loadMedicines();
+                  }
+                },
               ),
             ),
           );

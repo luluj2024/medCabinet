@@ -31,6 +31,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
   Future<void> _deleteMedicine(Medicine medicine) async {
     if (medicine.id == null) return;
     await MedicineDao.instance.deleteById(medicine.id!);
+    _loadMedicines(); // Refresh the list after deletion
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('"${medicine.name}" deleted.')),
