@@ -45,6 +45,18 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
     return Colors.green;
   }
 
+  void _refresh() {
+    setState(() {
+      _medicines = MedicineDao.instance.getAll();
+    });
+  }
+
+  Future<void> _deleteMedicine(Medicine medicine) async {
+    if (medicine.id == null) return;
+    await MedicineDao.instance.deleteById(medicine.id!);
+    _refresh();
+  }
+
 
   Widget _buildSection(String title, Color color, List<Medicine> meds) {
     if(meds.isEmpty) return const SizedBox.shrink();
@@ -68,46 +80,81 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
             final daysLeft = _daysLeft(med.expiryDate);
             final color = _statusColor(daysLeft);
 
-            return ListTile(
-              leading: Icon(
-                _statusIcon(daysLeft),
-                color: color,
+            return Dismissible(
+              key: ValueKey(med.id ?? '${med.name}-${med.createdAt}'),
+              background: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                color: Colors.red,
+                child: const Icon(Icons.delete, color: Colors.white),
               ),
-              title: Text(
+              direction: DismissDirection.endToStart,
+
+              confirmDismiss: (direction) async {
+                return await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Delete Medicine?'),
+                    content: Text(
+                      'Are you sure you want to delete ${med.name}?',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+
+                      FilledButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                ) ??
+                    false;
+              },
+
+              onDismissed: (_) => _deleteMedicine(med),
+              child: ListTile(
+                leading: Icon(
+                  _statusIcon(daysLeft),
+                  color: color,
+                ),
+                title: Text(
                   med.name,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: color,
                   ),
-              ),
-              subtitle: Text(
-                'Expiry: ${_formatDate(med.expiryDate)} * ${med.location}',
-              ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    daysLeft < 0 ? 'Expired' : '$daysLeft d',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: color,
+                ),
+                subtitle: Text(
+                  'Expiry: ${_formatDate(med.expiryDate)} * ${med.location}',
+                ),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      daysLeft < 0 ? 'Expired' : '$daysLeft d',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 2),
+                    const SizedBox(height: 2),
 
-                  Text(
-                    'left',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
+                    Text(
+                      'left',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
       }).toList(),
-
       ],
     );
   }
