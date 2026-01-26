@@ -16,11 +16,8 @@ class NotificationService {
   static const String _channelDescription = 'Daily Medicine Reminders';
 
   Future<void> init() async {
-    // 1. Initialize timezone database
     tzdata.initializeTimeZones();
-    // 2. Get local timezone from native side
     final localTimezone = await FlutterTimezone.getLocalTimezone();
-    // 3. Set the local timezone
     tz.setLocalLocation(tz.getLocation(localTimezone.identifier));
 
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -172,7 +169,7 @@ class NotificationService {
         body,
         scheduled,
         _details(),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       );
 
       // ----------- testing ---------------
