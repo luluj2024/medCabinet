@@ -206,16 +206,16 @@ class _ExpiryScreenState extends State<ExpiryScreen> {
                     )
                   ],
                 ),
-                onTap: () async {
-                  final refreshed = await Navigator.of(context).push<bool>(
-                    MaterialPageRoute(
-                      builder: (_) => MedicineDetailScreen(medicine: med),
-                    ),
-                  );
-                  if (refreshed == true) {
-                    _loadMedicines();
-                  }
-                },
+                // onTap: () async {
+                //   final refreshed = await Navigator.of(context).push<bool>(
+                //     MaterialPageRoute(
+                //       builder: (_) => MedicineDetailScreen(medicine: med),
+                //     ),
+                //   );
+                //   if (refreshed == true) {
+                //     _loadMedicines();
+                //   }
+                // },
               ),
             ),
           );
